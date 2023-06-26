@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  placed_date: 2023-06-24
+  delivered: false
+
+two:
+  placed_date: 2023-06-24
+  delivered: false
