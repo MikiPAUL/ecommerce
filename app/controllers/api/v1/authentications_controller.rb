@@ -43,7 +43,9 @@ module Api
             def customer_params
                 params.require(:customer).permit(
                   :first_name, :last_name, :email, :password
-                )
+                ).tap do |param|
+                    param.require(%i[first_name last_name])
+                end
             end
         end
     end

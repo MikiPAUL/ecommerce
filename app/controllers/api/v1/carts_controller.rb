@@ -16,7 +16,7 @@ module Api
 
             def show
                 @customer = user_info
-                @customer_cart = Cart.where("customer_id = ? and id = ?", @customer.id, params[:id])
+                @customer_cart = Cart.where("customer_id = ? and id = ?", @customer.id, params[:id]).last
                 if @customer_cart
                     render json: @customer_cart, status: :ok
                 else 
@@ -32,24 +32,29 @@ module Api
                 @cart.save
 
                 @products = params[:products]
-                @products.each { |product|
-                    CartProduct.create!(cart_id: @cart.id, product_id: product[:id])
-                }
-                render json: @products, status: :created
+
+                if !@products
+                    render json: "select atleast an Item to create cart", status: :unprocessable_entity
+                else 
+                    @products.each { |product|
+                        CartProduct.create!(cart_id: @cart.id, product_id: product[:id])
+                    }
+                    render json: @products, status: :created
+                end
             end 
 
             def update
                 @customer = user_info
-                @customer_cart = Cart.where("customer_id = ? and id = ?", @customer.id, params[:cart_id])
+                @customer_cart = Cart.where("customer_id = ? and id = ?", @customer.id, params[:cart_id]).last
 
                 if !@customer_cart
-                    render json: "cart doesn't exist", status: :unprocessable_entity
+                    render json: "cart doesn't exist", status: :not_found
                 else 
                     @products = params[:products]
                     @products.each { |product|
                         CartProduct.create!(:cart_id => params[:cart_id], :product_id => product[:id])
                     }
-                    render json: @products, status: :ok
+                    head :ok
                 end
             end
 

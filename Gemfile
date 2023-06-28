@@ -31,6 +31,10 @@ gem 'jwt'
 
 gem "http"
 
+gem 'rack-cors', :require => 'rack/cors'
+
+gem "active_model_serializers"
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
 
@@ -75,5 +79,6 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
   gem "webdrivers"
+  gem 'factory_bot_rails'
   gem 'faker'
 end

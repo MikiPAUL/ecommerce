@@ -1,45 +1,48 @@
 require 'rails_helper'
 
-RSpec.describe "API::V1::Authentication", type: :request do
+RSpec.describe "API::V1::Product", type: :request do
 
-    describe "GET /login" do
-        it "fails - no credentials" do
-            post "/auth/login"
-            expect(response.status).to eq(417)
+    let!(:vendor) { create(:vendor) }
+    let!(:products) { create_list(:product, 10, :vendor_id => vendor.id) }
+    let!(:customer) { create(:customer) }
+    let!(:token) { authorization customer}
+
+    context 'post /carts' do
+        
+        it 'returns 201 - create cart' do
+            products_list = {
+                :products => products.map { |product|
+                    { "id" => product["id"] }
+                }
+            }
+            post '/carts', headers: { :Authorization => token }, params: products_list, as: :json
+            expect(JSON.parse(response.body).length).to eq(10) and expect(response.status).to eq(201)
         end
 
-        it "accepts - valid credentials" do
-            params = {
-                :email => "abc@gmail.com", 
-                :password => "1234567890"
-            }
-            post "/auth/login", params: params
-            expect(response.status).to eq(200)
+        it 'return 411- not enough product to create cart' do 
+            post '/carts', headers: { :Authorization => token }, params: {}, as: :json
+            expect(response.status).to eq(422)
         end
     end
 
-    describe "POST /signup" do
-        it "fails - invalid attribute city" do
-            params = {
-                :first_name => "user",
-                :city => "city",
-                :email => "abc@gmail.com", 
-                :password => "1234567890"
-            }
-            post "/auth/signup", params: params
-            expect(response.status).to eq(417)
-        end
-        it "accepts - valid details" do
-            params = { 
-                    :customer => {
-                    :first_name => "user",
-                    :last_name => "name",
-                    :email => "abc@gmail.com", 
-                    :password => "1234567890"
+    context 'update /carts' do
+        
+        it 'returns 404 - cart not found' do
+            products_list = {
+                :products => products.map { |product|
+                    { "id" => product["id"] }
                 }
             }
-            post "/auth/signup", params: params
-            expect(response.status).to eq(201)
+            put '/carts?cart_id=9999', headers: { :Authorization => token }, params: products_list, as: :json
+            expect(response.status).to eq(404)
+        end
+    end
+
+    context 'destroy /cart/:id' do
+        
+        it 'returns 404 - cart not found' do
+            delete '/carts/999', headers: { :Authorization => token }, as: :json
+            expect(response.status).to eq(404)
         end
     end
 end

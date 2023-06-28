@@ -9,10 +9,9 @@ class ApplicationController < ActionController::Base
     
     def authorize_request
         header = request.headers['Authorization']
-        puts header
         begin
-            @decoded = JsonWebToken.decode(header)
-            @current_customer = Customer.find(@decoded[:customer_id])
+            @decoded = JsonWebToken.decode(header) 
+            @current_customer = Customer.find(@decoded[:customer_id]) 
         rescue ActiveRecord::RecordNotFound => e
             render json: { errors: e.message }, status: :unauthorized
         rescue JWT::DecodeError => e

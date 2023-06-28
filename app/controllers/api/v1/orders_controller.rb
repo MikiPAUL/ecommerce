@@ -17,9 +17,8 @@ module Api
             private
 
             def order_params
-                params.permit(:placed_date, :cart_id, :delivered)
+                params.require(:order).permit(:placed_date, :delivered, :cart_id)
             end
-
         end
     end
 end
